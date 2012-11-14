@@ -109,7 +109,6 @@ function resetAudio(soundaudio) {
 
 function init() {
 
-
     canvas = document.getElementById(id);
     canvas.width = document.body.clientWidth;
     ctx = canvas.getContext('2d');
@@ -128,7 +127,7 @@ function init() {
             }
         });
         var set = Math.round(y / 50);
-        console.log(set);
+
         if (sticky == true) {
             $("." + set + ".bar" + bestindex).toggleClass("selected");
         } else {
@@ -167,16 +166,6 @@ function init() {
 
     canvas.addEventListener(touchmove, function (e) {
         e.preventDefault();
-
-        function handle(x, y, touch) {
-            var note;
-            if (touch) {
-                note = touch.note;
-            } else {
-                note = mouseNote;
-            }
-            note.setFrequency(x, y);
-        }
 
         if (e.changedTouches) {
             for (var i = 0; i < e.changedTouches.length; i++) {
@@ -239,11 +228,11 @@ $(function () {
     id = 'content8';
     init();
 
-
     for (var j = 0; j < theArray.length - 1; j++) {
         $(".bar" + j).css("width", theArray[j + 1] - theArray[j] + "px");
         $(".bar" + j).attr("freq", theArray[j]);
     }
+    
     $("#tempo").slider({
         min: 1,
         value: 500,
