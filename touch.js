@@ -7,15 +7,21 @@ var touch;
 var audioCtx = null;
 var soundBuffer = null;
 var effect;
-var theArray = [261.63, 293.66, 329.63, 349.23, 392, 440, 493.88, 523.25];
+var loopLength = 16;
+var majorArray = [261.63, 293.66, 329.63, 349.23, 392, 440, 493.88, 523.25,587.33,659.26,698.46,783.99,880,987.77];
+var minorArray = [277.18, 311.13, 329.63, 369.99, 415.3, 440, 493.88,554.37,622.25,659.26,739.99,830.61,880,987.77];
 var mouseNote = null;
+var rhythmIndex = 0;
 var mouseDown = false;
 var touchstart = 'mousedown';
 var touchmove = 'mousemove';
 var touchend = 'mouseup';
 var soundaudio = 'guitar.mp3';
-
-function playSound(x, y, quick) {
+var theArray = majorArray;
+var counter = 0;
+var timeoutId;
+var startTime;
+function playSound(x, y, quick, noteTime) {
     if (soundBuffer) {
         var sound = audioCtx.createBufferSource();
         var gain = audioCtx.createGainNode();
@@ -30,7 +36,7 @@ function playSound(x, y, quick) {
         if (quick) {
             sound.noteGrainOn(0., .2, .4);
         } else {
-            sound.noteOn(0);
+            sound.noteOn(noteTime);
         }
     }
 }
@@ -88,7 +94,8 @@ Note.prototype.stopNote = function () {
 var lastX = 0;
 var lastY = 0;
 var lastTime = 0;
-var sticky = null;
+var sticky = false;
+
 
 function bufferSound(event) {
     var request = event.target;
@@ -126,15 +133,22 @@ function init() {
                 bestindex = index;
             }
         });
-        var set = Math.round(y / 50);
-
+        var set = Math.floor(y / 55);
         if (sticky == true) {
-            $("." + set + ".bar" + bestindex).toggleClass("selected");
+        	if ( $("." + set + ".bar" + bestindex).hasClass("selected") ) {
+        		$("." + set + ".bar" + bestindex).removeClass("selected");
+        		localStorage.removeItem(set+"-"+bestindex);
+        		
+        	} else {
+	            $("." + set + ".bar" + bestindex).addClass("selected");
+	            localStorage.setItem(set+"-"+bestindex, 'selected');
+        	}
+            //localStorage.setItem(set+"-"+bestindex, 'selected');
         } else {
             $("." + set + ".bar" + bestindex).addClass("selected");
         }
         $(".note").html(closest.toString());
-        playSound(closest.toString(), y);
+        playSound(closest.toString(), y, 0);
 
         if (touch) {
             touch.note = note;
@@ -209,41 +223,66 @@ function init() {
     };
 
 }
+function advanceNote() {
+    // Advance time by a 16th note...
+    var secondsPerBeat = 60.0 / $("#tempo").slider("option", "value");
 
+	rhythmIndex++;
+
+    if (rhythmIndex == loopLength) {
+        rhythmIndex = 0;
+    }
+    
+    noteTime += secondsPerBeat;
+}
+
+function schedule() {
+    var currentTime = audioCtx.currentTime;
+
+    currentTime -= startTime;
+
+    while (noteTime < currentTime + 0.200) {
+        var contextPlayTime = noteTime + startTime;
+        
+        for (var i = 0; i < theArray.length; i++) {
+            if ($("." + rhythmIndex + ".bar" + i).hasClass("selected")) {
+                $("." + rhythmIndex + ".bar" + i).effect("highlight", {}, 10);
+                //console.log(contextPlayTime);
+                playSound($("." + rhythmIndex + ".bar" + i).attr("freq"), 400, contextPlayTime);
+            }
+        }
+        advanceNote();
+    }
+
+    timeoutId = setTimeout("schedule()", 0);
+}
 $(function () {
-    id = 'content2';
-    init();
-    id = 'content';
-    init();
-    id = 'content3';
-    init();
-    id = 'content4';
-    init();
-    id = 'content5';
-    init();
-    id = 'content6';
-    init();
-    id = 'content7';
-    init();
-    id = 'content8';
-    init();
-
+	for (var i =0;i<loopLength;i++) {
+		id = 'content'+i;
+		init();
+	}
+    
     for (var j = 0; j < theArray.length - 1; j++) {
         $(".bar" + j).css("width", theArray[j + 1] - theArray[j] + "px");
         $(".bar" + j).attr("freq", theArray[j]);
     }
     
+    var tempo = 100;
+    if (localStorage.getItem('tempo')) {
+    	tempo = localStorage.getItem('tempo');
+    }
+    
     $("#tempo").slider({
-        min: 1,
-        value: 500,
-        max: 2000
+        min: 50,
+        value: tempo,
+        max: 180
     });
 
     $(".bar" + (theArray.length - 1)).css("width", "20px");
     $(".bar" + (theArray.length - 1)).attr("freq", theArray[(theArray.length - 1)]);
 
     $("#minor").click(function() {
-        theArray = [277.18, 311.13, 329.63, 369.99, 415.3, 440, 493.88];
+        theArray = minorArray;
         for (var j = 0; j < theArray.length - 1; j++) {
             $(".bar" + j).css("width", theArray[j + 1] - theArray[j] + "px");
             $(".bar" + j).attr("freq", theArray[j]);
@@ -253,7 +292,7 @@ $(function () {
     });
 
     $("#major").click(function() {
-        theArray = [261.63, 293.66, 329.63, 349.23, 392, 440, 493.88, 523.25];
+        theArray = majorArray;
         for (var j = 0; j < theArray.length - 1; j++) {
             $(".bar" + j).css("width", theArray[j + 1] - theArray[j] + "px");
             $(".bar" + j).attr("freq", theArray[j]);
@@ -277,44 +316,45 @@ $(function () {
         soundaudio = 'violin.mp3';
         resetAudio(soundaudio);
     });
-
+	$(function() {
     $("#sticky").click(function () {
-        sticky = true;
+        
+        if ($(this).hasClass("selected")) {
+        	sticky = false;
+        	$(this).removeClass("selected");
+        	localStorage.removeItem('sticky');
+        } else {
+        	$(this).addClass("selected");
+        	sticky = true;
+        	localStorage.setItem('sticky', 'selected');
+        }
     });
+	    $("#sticky").addClass(localStorage.getItem('sticky'));
+	    if ($("#sticky").hasClass("selected")) {
+			sticky = true;	
+		}
+	});
 
     var counter = 0;
     var myVar = null;
 
-    function myTimer() {
-
-        counter++;
-        if (counter > 8) {
-            counter = 1;
-        }
-        for (var i = 0; i <= 9; i++) {
-            if ($("." + counter + ".bar" + i).hasClass("selected")) {
-                $("." + counter + ".bar" + i).effect("highlight", {}, 10);
-                playSound($("." + counter + ".bar" + i).attr("freq"), 400);
-            }
-        }
-    }
-    
     $("#tempo").bind("slide", function (event, ui) {
-        clearInterval(myVar);
-        myVar = setInterval(function () {
-            myTimer()
-        }, $("#tempo").slider("option", "value"));
+        localStorage.setItem('tempo', $("#tempo").slider("option", "value"));
     });
     
     $("#clear").click(function () {
         $(".bar").removeClass("selected");
-        clearInterval(myVar);
+        clearTimeout(timeoutId);
+        localStorage.clear();
+    });
+    
+    $("#stop").click(function () {
+        clearTimeout(timeoutId);
     });
     
     $("#start").click(function () {
-        counter = 0;
-        myVar = setInterval(function () {
-            myTimer()
-        }, $("#tempo").slider("option", "value"));
+        noteTime = 0.0;
+	    startTime = audioCtx.currentTime + 0.005;
+	    schedule();
     });
 });
