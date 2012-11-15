@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Piano</title>
+    <meta name="viewport" content="user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<link href="css/ui-darkness/jquery-ui-1.9.1.custom.css" rel="stylesheet">
+	<script src="js/jquery-1.8.2.js"></script>
+	<script src="js/jquery-ui-1.9.1.custom.js"></script>
+    <script type="text/javascript" src="touch.js"></script>
+    
+    <script type="text/javascript" src="jquery.ui.touch-punch.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+    <link rel="stylesheet" type="text/css" href="touch.css" />
+    <link rel="apple-touch-icon" href="appicon.png" />
+	<link rel="apple-touch-startup-image" href="startup.png">
+
+  </head>
+  <body>
+
+   <ul class="toolbar2">
+    
+      <li>
+	      <a href="#" id="start">Start</a>
+	      <a href="#" id="stop">Stop</a>
+	      <a href="#" id="clear">Clear</a>
+      </li>
+      <div id="tempo"></div>
+      
+    </ul>
+    
+	<div id="canvasarea"></div>
+
+
+
+    <ul class="toolbar">
+    
+      <li>
+	      <a href="#" id="major">Major</a>
+	      <a href="#" id="minor">Minor</a>
+	      <a href="#" id="guitar">Guitar</a>
+	      <a href="#" id="piano">Piano</a>
+	      <a href="#" id="violin">Violin</a>
+	      <a href="#" id="sticky">Sticky</a>
+      </li>
+    </ul>
+    
+  <div id="barsarea">
+
+    
+    <script type="text/javascript">
+    for (var i=0;i<16;i++) {
+    	str = "";
+    	str += "<div class='bars'>";
+    	for (var j=0;j<12;j++) {
+    		str += "<div class='"+i+" bar"+j+" bar'></div>";
+    	}
+    	str += "</div>";
+    	$("#barsarea").append(str);
+    	$("#canvasarea").append("<canvas id='content"+i+"'></canvas>");
+    	$("#content"+i).css("margin-top", 5+(i*52) + "px");
+    }
+    $("ul.toolbar").css("margin-top", ($(window).height()-20)+"px");
+    </script>
+</div>
+    
+    </div>
+  </body>
+</html>
