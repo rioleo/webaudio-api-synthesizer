@@ -6,26 +6,64 @@ html, body {
     font-family: Helvetica Neue, Helvetica, sans-serif;
 }
 canvas {
-	width:100%;
+	width:85%;
 	margin: 0;
     padding: 0;
     left: 0;
     height:46px !important;
     z-index: 0;
     position: absolute;
-    border:1px solid #eee;
+    border-right:1px solid #eee;
 }
-
+.ui-slider { 
+	 height: 1.3em !important;
+}
+.ui-slider .ui-slider-handle {
+  height: 1.6em !important;
+}
+#tempotextbox {
+	float:right;
+	z-index:10;
+	margin-top:3px;
+	width:50px;
+}
+#rows {
+	float:right;
+	margin-top:3px;
+	width:20px;
+	color:#aaa;
+	height:1.2em;
+	background:#333;
+}
+#tempotext {
+	width:20px;
+	color:#aaa;
+	height:1.2em;
+	background:#333;
+}
 #tempo {
-	position:absolute;
+	float:right;
+	margin-right:10px;
 	z-index:10;
 	top:3px;
 	width:120px;
-	right:200px;
 }
 a, a:visited {
     text-decoration: none;
     color: white;
+}
+.fb-send {
+	margin:10px
+}
+#box {
+	padding:10px;
+	background:#eee;
+	margin-top:20px;
+	height:300px;	
+}
+#box a {
+	color:#111;
+	border-bottom:1px solid #999;
 }
 
 ul.toolbar2 {
@@ -42,6 +80,10 @@ ul.toolbar2 {
     z-index:10;
     margin-top:0px;
    
+}
+ul.toolbar2 li {
+	float:right;
+	width:300px;
 }
 ul.toolbar {
     position:absolute;
@@ -68,10 +110,10 @@ ul.toolbar {
   	left: 0px;
 }
 .bar {
-	border-left:20px solid #333;
+	border-left:16px solid #333;
 	height:47px;
 	float:left;
-	margin-left:-18px;
+	margin-left:-14px;
 	
 }
 .note {
@@ -88,6 +130,8 @@ ul.toolbar li,ul.toolbar2 li {
 	float:left;
 }
 #barsarea {
+	height:500px;
+	overflow:scroll;
 	margin-top:20px;
 }
 ul.toolbar li a {
